@@ -39,6 +39,7 @@ class ActorCritic(nn.Module):
         x = F.tanh(self.affine2(x))
         alpha = self.alpha_action_mean(x)
         beta = self.beta_action_mean(x)
+        # import pdb; pdb.set_trace()
         action_mean = torch.cat((alpha,beta),dim=1)
 
         cov_mat = torch.diag(self.action_var).to(device)
@@ -192,7 +193,7 @@ class PPO:
 #
 #     		action = policy.select_action(obs, eval_mem)
 #     		# import pdb; pdb.set_trace()
-#     		obs, cost, failed = env.step_together(t, np.array(action).reshape(-1,len(action)), cloud_policy, silence=silence)
+#     		obs, cost, failed = env.step(t, np.array(action).reshape(-1,len(action)), cloud_policy, silence=silence)
 #
 #     		avg_reward -= cost
 #     		costs.append(cost)
@@ -255,7 +256,7 @@ class PPO:
 #     #############################################
 #
 #     # creating environment
-#     env = environment.Environment_sosam(1, *applications, use_beta=use_beta)
+#     env = environment.MEC_v1(1, *applications, use_beta=use_beta)
 #     state = env.init_for_sosam(edge_capability, cloud_capability, channel)
 #     state_dim = env.state_dim
 #     action_dim = env.action_dim
@@ -284,7 +285,7 @@ class PPO:
 #             time_step +=1
 #             # Running policy_old:
 #             action = ppo.select_action(state, memory)
-#             state, cost, done = env.step_together(time_step, action, cloud_policy, silence=silence)
+#             state, cost, done = env.step(time_step, action, cloud_policy, silence=silence)
 #             reward = -cost
 #             # Saving reward:
 #             memory.rewards.append(reward)

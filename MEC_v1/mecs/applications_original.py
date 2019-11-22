@@ -4,36 +4,36 @@ from constants import *
 app_info={
     SPEECH_RECOGNITION : {'workload':10435,
         'popularity': 5,
-        'min_bits':40000*BYTE,
-        'max_bits':300000*BYTE
+        'min_bits':80000*BYTE,
+        'max_bits':800000*BYTE
     },NLP : {'workload':25346,
-        'popularity': 8,
-        'min_bits':4000*BYTE,
-        'max_bits':100000*BYTE
+        'popularity': 2,
+        'min_bits':300*BYTE,
+        'max_bits':1400*BYTE
     },FACE_RECOGNITION : {'workload':45043,
-        'popularity': 4,
-        'min_bits':10000*BYTE,
-        'max_bits':100000*BYTE
+        'popularity': 2,
+        'min_bits':300000*BYTE,
+        'max_bits':30000000*BYTE
     },SEARCH_REQ : {'workload':8405,
-        'popularity': 0.125,
-        'min_bits':800*BYTE,
-        'max_bits':8000*BYTE
+        'popularity': 3,
+        'min_bits':400,
+        'max_bits':700*BYTE
     },LANGUAGE_TRANSLATION : {'workload':34252,
-        'popularity': 0.125,
-        'min_bits':800*BYTE,
-        'max_bits':8000*BYTE
+        'popularity': 2,
+        'min_bits':300*BYTE,
+        'max_bits':4000*BYTE
     },PROC_3D_GAME : {'workload':54633,
-        'popularity': 0.125,
-        'min_bits':800*BYTE,
-        'max_bits':8000*BYTE
+        'popularity': 2,
+        'min_bits':100000*BYTE,
+        'max_bits':3000000*BYTE
     },VR : {'workload':40305,
-        'popularity': 0.125,
-        'min_bits':800*BYTE,
-        'max_bits':8000*BYTE
+        'popularity': 2,
+        'min_bits':100000*BYTE,
+        'max_bits':3000000*BYTE
     },AR : {'workload':34532,
-        'popularity': 0.125,
-        'min_bits':800*BYTE,
-        'max_bits':8000*BYTE
+        'popularity': 2,
+        'min_bits':100000*BYTE,
+        'max_bits':3000000*BYTE
     }
 }
 
@@ -48,7 +48,7 @@ def app_type_pop():
     # return result
     return [(i, app_info[i]['popularity']) for i in list(app_info.keys())]
 
-def arrival_bits(app_type, dist = 'deterministic'):
+def arrival_bits(app_type, dist = 'normal'):
     min_bits = app_info[app_type]['min_bits']
     max_bits = app_info[app_type]['max_bits']
     mu = (min_bits+max_bits)/2
@@ -61,11 +61,9 @@ def arrival_bits(app_type, dist = 'deterministic'):
         return 1
 
 def main():
-    import numpy as np
     result =[]
     for i in range(1,9):
         result.append(app_info[i]['workload']*app_info[i]['popularity']*arrival_bits(i, dist='deterministic'))
-    result = np.array(result)/GHZ
     import pdb; pdb.set_trace()
 
 if __name__=='__main__':

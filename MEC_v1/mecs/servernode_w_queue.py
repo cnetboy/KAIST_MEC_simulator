@@ -2,17 +2,16 @@ import logging
 import uuid
 import copy
 import numpy as np
-from node import Node
+
+import applications
 from task import Task
 from task_queue import TaskQueue
-from channels import *
-import applications
-from utilities import *
 
 logger = logging.getLogger(__name__)
 
 
-class ServerNode(Node):
+# class ServerNode(Node):
+class ServerNode:
     def __init__(self, computation_capability, is_random_task_generating=False):
         super().__init__()
         # self.map = whole_map
@@ -80,7 +79,7 @@ class ServerNode(Node):
 
     # 모든 application에 대한 액션 beta, id_to_offload로 offload함.  (_probe로 가능한 action으로 바꿔서)
     def offload_tasks(self, beta, id_to_offload):
-        channel_rate = self.get_channel_rate(id_to_offload)
+        channel_rate = self.sample_channel_rate(id_to_offload)
         # app_type_list = applications.app_type_list()
         app_type_list = list(self.queue_list.keys())
         lengths = self.get_queue_lengths()
@@ -198,8 +197,11 @@ class ServerNode(Node):
             lengths[app_type-1]=queue.get_length(normalize=None)
         return lengths
 
-    def get_channel_rate(self, id_to_offload):
-        return get_channel_info(self.links_to_higher[id_to_offload]['channel'])
+    def sample_channel_rate(self, linked_id):
+        if linked_id in self.links_to_higher.keys():
+            return self.links_to_higher[linked_id]['channel'].get_rate()
+        elif linked_id in self.links_to_lower.keys():
+            return self.links_to_lower[linked_id]['channel'].get_rate(False)
 
     def get_applications(self):
         return list(self.queue_list.keys())

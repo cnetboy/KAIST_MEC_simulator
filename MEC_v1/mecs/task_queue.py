@@ -1,13 +1,11 @@
 import uuid
 import logging
-from abc import abstractmethod, ABCMeta
 import collections
-import copy
 import numpy as np
 import applications
-# from mecs.task import Task
+
 from task import *
-from utilities import *
+from buffers import TaskBuffer
 from constants import *
 
 logger = logging.getLogger(__name__)
@@ -20,10 +18,12 @@ class TaskQueue(object):
         self.tasks = collections.OrderedDict()
         self.length = 0
         self.app_type = app_type
-        self.arrival_size_buffer = Lyapunov_buffer(max_size=100)
+        self.arrival_size_buffer = TaskBuffer(max_size=100)
         self.exploded = 0
+        logger.info('Task queue of app. type {} with max length {} is initiallized'.format(app_type, max_length))
 
     def __del__(self):
+        # logger.info('Task queue of app. type {} with max length {} is removed'.format(app_type, max_length))
         if len(self.tasks):
             ids = list(self.tasks.keys())
             for id in ids:
@@ -73,6 +73,7 @@ class TaskQueue(object):
     def served(self, resource, type = 1, silence=True):
         if not silence: print("########### compute or offload : inside of task_queue.served ##########")
         if resource == 0:
+            logger.info('No data to be served')
             return
         else:
             task_to_remove = []
@@ -120,7 +121,6 @@ class TaskQueue(object):
             return resource, offloaded_tasks
 
     def mean_arrival(self, t, interval=10, normalize=100):
-        # import pdb; pdb.set_trace()
         result = 0
         for time, data_size in self.arrival_size_buffer.get_buffer():
             if time > t - interval:
@@ -132,33 +132,16 @@ class TaskQueue(object):
         else:
             return result/min(t+1,interval)/self.max_length*normalize
 
-    # def last_arrival(self, t, normalize=100):
-    #     time, arrival_size = self.arrival_size_buffer.last_storage()
-    #     if time==t:
-    #         if not normalize:
-    #             return arrival_size
-    #         else:
-    #             return arrival_size/self.max_length*normalize
-    #     else:
-    #         return 0
-
     def last_arrival(self, t, normalize=100):
-        result = 0
-        for time, data_size in self.arrival_size_buffer.get_buffer():
+        last_data = self.arrival_size_buffer.get_last_obj()
+        if last_data:
+            time, data_size =last_data
             if time==t:
-                result += data_size
-            else:
-                break
-        if not normalize:
-            return result
-        else:
-            return result/self.max_length*normalize
-
-
-
-    @abstractmethod
-    def print_me(self):
-        pass
+                if not normalize:
+                    return data_size
+                else:
+                    return data_size/self.max_length*normalize
+        return 0
 
     def get_uuid(self):
         return self.uuid.hex
